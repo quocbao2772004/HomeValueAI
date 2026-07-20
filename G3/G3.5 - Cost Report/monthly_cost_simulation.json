@@ -1,0 +1,20 @@
+{
+  "assumptions": {
+    "mau": 10000,
+    "queries_per_user_month": 20,
+    "premium_fee_usd": 5.0,
+    "conversion_rate": 0.05,
+    "variable_cost_user_month_usd": 0.0127,
+    "fixed_cost_month_usd": 45.0
+  },
+  "financials": {
+    "total_variable_cost_usd": 126.51,
+    "total_cost_usd": 171.51,
+    "total_cpupm_usd": 0.0172,
+    "paying_users": 500,
+    "monthly_revenue_usd": 2500.0,
+    "gross_profit_usd": 2328.49,
+    "gross_margin_percent": 93.1,
+    "break_even_paying_users": 10
+  }
+}

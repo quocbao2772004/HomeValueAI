@@ -1,0 +1,19 @@
+{
+  "assumptions": {
+    "chars_per_token": 3.0,
+    "mock_context_chars": 1500,
+    "estimated_output_tokens": 200,
+    "pricing": {
+      "gpt-4o-mini_input_1M": 0.15,
+      "gpt-4o-mini_output_1M": 0.6,
+      "serpapi_1k_credits": 1.0
+    }
+  },
+  "metrics": {
+    "input_tokens_per_query": 1417,
+    "cost_1000_chat_usd": 0.3326,
+    "cost_1000_amenity_usd": 1.0,
+    "total_cost_1000_mixed_queries_usd": 1.3326,
+    "meets_expectation": true
+  }
+}

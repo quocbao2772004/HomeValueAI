@@ -1,0 +1,13 @@
+{
+  "metrics": {
+    "total_samples": 50,
+    "mape": 9.4369,
+    "hit_rate": 78.0,
+    "error_distribution": {
+      "less_than_5": 18,
+      "between_5_and_10": 15,
+      "between_10_and_20": 10,
+      "greater_than_20": 7
+    }
+  }
+}

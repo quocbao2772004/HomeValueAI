@@ -1,0 +1,169 @@
+{
+  "overall_accuracy": 0.65,
+  "total_cases": 20,
+  "correct_count": 13,
+  "per_intent_metrics": {
+    "greeting": {
+      "total": 4,
+      "correct": 4
+    },
+    "valuation": {
+      "total": 4,
+      "correct": 4
+    },
+    "trend": {
+      "total": 4,
+      "correct": 3
+    },
+    "snapshot": {
+      "total": 4,
+      "correct": 2
+    },
+    "out-of-scope": {
+      "total": 4,
+      "correct": 0
+    }
+  },
+  "confusion_matrix": {
+    "greeting": {
+      "greeting": 4
+    },
+    "valuation": {
+      "valuation": 4
+    },
+    "trend": {
+      "valuation": 1,
+      "trend": 3
+    },
+    "snapshot": {
+      "trend": 1,
+      "valuation": 1,
+      "snapshot": 2
+    },
+    "out-of-scope": {
+      "valuation": 4
+    }
+  },
+  "detailed_results": [
+    {
+      "message": "Xin chào",
+      "expected": "greeting",
+      "predicted": "greeting",
+      "is_correct": true
+    },
+    {
+      "message": "Hello",
+      "expected": "greeting",
+      "predicted": "greeting",
+      "is_correct": true
+    },
+    {
+      "message": "Chào bạn",
+      "expected": "greeting",
+      "predicted": "greeting",
+      "is_correct": true
+    },
+    {
+      "message": "Hi shop",
+      "expected": "greeting",
+      "predicted": "greeting",
+      "is_correct": true
+    },
+    {
+      "message": "Định giá căn hộ 54m2 Vinhomes Smart City",
+      "expected": "valuation",
+      "predicted": "valuation",
+      "is_correct": true
+    },
+    {
+      "message": "Nhà tôi bán được bao nhiêu tiền",
+      "expected": "valuation",
+      "predicted": "valuation",
+      "is_correct": true
+    },
+    {
+      "message": "Cần bán gấp shophouse 120m2",
+      "expected": "valuation",
+      "predicted": "valuation",
+      "is_correct": true
+    },
+    {
+      "message": "Thuê căn 2PN Ocean Park giá bao nhiêu",
+      "expected": "valuation",
+      "predicted": "valuation",
+      "is_correct": true
+    },
+    {
+      "message": "Giá chung cư Hà Nội năm nay tăng hay giảm?",
+      "expected": "trend",
+      "predicted": "valuation",
+      "is_correct": false
+    },
+    {
+      "message": "Xu hướng giá bất động sản hiện nay",
+      "expected": "trend",
+      "predicted": "trend",
+      "is_correct": true
+    },
+    {
+      "message": "Thị trường dạo này thế nào",
+      "expected": "trend",
+      "predicted": "trend",
+      "is_correct": true
+    },
+    {
+      "message": "Trend giá thuê",
+      "expected": "trend",
+      "predicted": "trend",
+      "is_correct": true
+    },
+    {
+      "message": "Cho tôi thống kê thị trường Vinhomes Smart City",
+      "expected": "snapshot",
+      "predicted": "trend",
+      "is_correct": false
+    },
+    {
+      "message": "Tình hình giao dịch khu vực này thế nào",
+      "expected": "snapshot",
+      "predicted": "valuation",
+      "is_correct": false
+    },
+    {
+      "message": "Bảng giá chủ đầu tư mới nhất",
+      "expected": "snapshot",
+      "predicted": "snapshot",
+      "is_correct": true
+    },
+    {
+      "message": "Tham khảo giá bán tham chiếu",
+      "expected": "snapshot",
+      "predicted": "snapshot",
+      "is_correct": true
+    },
+    {
+      "message": "Thời tiết hôm nay thế nào?",
+      "expected": "out-of-scope",
+      "predicted": "valuation",
+      "is_correct": false
+    },
+    {
+      "message": "Ai là tổng thống Mỹ?",
+      "expected": "out-of-scope",
+      "predicted": "valuation",
+      "is_correct": false
+    },
+    {
+      "message": "Tôi muốn đặt vé máy bay",
+      "expected": "out-of-scope",
+      "predicted": "valuation",
+      "is_correct": false
+    },
+    {
+      "message": "Ăn trưa món gì ngon?",
+      "expected": "out-of-scope",
+      "predicted": "valuation",
+      "is_correct": false
+    }
+  ]
+}

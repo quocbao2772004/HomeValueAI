@@ -1,0 +1,118 @@
+greeting_phrases:
+  - hi
+  - hello
+  - hey
+  - alo
+  - chao
+  - xin chao
+  - chao ban
+  - hello ban
+  - hi ban
+greeting_starts:
+  - hi
+  - hello
+  - hey
+  - alo
+  - chao
+thanks_phrases:
+  - cam on
+  - thanks
+  - thank you
+  - tks
+  - ok
+  - oke
+  - okay
+help_terms:
+  - help
+  - how to use
+  - what can you do
+  - what do you do
+  - guide
+  - instruction
+  - huong dan
+  - cach dung
+  - lam duoc gi
+  - ban biet gi
+  - co the lam gi
+trend_terms:
+  - xu huong
+  - trend
+  - trends
+  - market trend
+  - market movement
+  - price movement
+  - price trend
+  - tang giam
+  - bien dong
+  - thi truong
+snapshot_terms:
+  - bang gia
+  - snapshot
+  - price snapshot
+  - reference price
+  - reference prices
+  - price list
+  - listed price
+  - tham khao
+  - gia niem yet
+amenity_terms:
+  - amenity
+  - amenities
+  - nearby
+  - around
+  - surrounding
+  - surroundings
+  - tien ich
+  - tiện ích
+  - tien tich
+  - tiện tích
+  - xung quanh
+  - gan do
+  - gần đó
+  - gan day
+  - gần đây
+  - map
+  - ban do
+  - bản đồ
+  - google map
+  - google maps
+  - supermarket
+  - grocery
+  - school
+  - hospital
+  - clinic
+  - shopping
+  - restaurant
+  - sieu thi
+  - truong hoc
+  - benh vien
+  - cong vien
+  - bus
+  - metro
+domain_terms:
+  - price
+  - valuation
+  - estimate
+  - sale
+  - sell
+  - rent
+  - rental
+  - apartment
+  - bedroom
+  - bedrooms
+  - ban
+  - thue
+  - gia
+  - dinh
+  - can
+  - canho
+  - vinhomes
+  - ocean
+  - smart
+  - times
+  - royal
+  - trend
+  - tien
+  - ich
+  - map
+  - m2

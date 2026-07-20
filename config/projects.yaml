@@ -1,0 +1,208 @@
+market:
+  name: "Vinhomes Hanoi secondary market"
+  city: "Hà Nội"
+  caveat: "Ước tính dựa trên giá rao công khai đã lọc nhiễu; chưa phải giá giao dịch chốt tuyệt đối."
+
+crawl:
+  source: "batdongsan"
+  direct_fetch_first: false
+  reader_fallback_enabled: true
+  reuse_existing_fetch: true
+  discover_related_filters: true
+  related_filter_links_per_page: 5
+  allow_project_from_confirmed_page: true
+  reader_prefix: "https://r.jina.ai/http://r.jina.ai/http://"
+  request_timeout_seconds: 10
+  delay_seconds: 0.4
+  max_pages_per_run: 100
+  pagination_pages_per_seed: 6
+  expand_seed_pagination: true
+  discover_listing_links: true
+  listing_links_per_page: 24
+  user_agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/125 Safari/537.36"
+  extra_pages:
+    - source: "vinhomesonline"
+      pagination: "query_page"
+      max_pages: 3
+      purpose: "sale"
+      property_type: "other"
+      url: "https://vinhomesonline.vn/thu-cap"
+    - source: "vinhomesonline"
+      pagination: "query_page"
+      max_pages: 3
+      purpose: "sale"
+      property_type: "other"
+      url: "https://vinhomesonline.vn/so-cap"
+    - source: "vinhomesonline"
+      pagination: "query_page"
+      max_pages: 2
+      purpose: "rent"
+      property_type: "other"
+      url: "https://vinhomesonline.vn/leasing/estate-for-rent"
+
+quality:
+  sale_price_per_m2_min_vnd: 15000000
+  sale_price_per_m2_max_vnd: 450000000
+  rent_monthly_min_vnd: 1000000
+  rent_monthly_max_vnd: 300000000
+  stale_after_days: 45
+
+valuation:
+  min_strong_sample_size: 50
+  min_medium_sample_size: 15
+  comparable_limit: 8
+  fallback_project_scope: true
+  quantiles: [0.1, 0.5, 0.9]
+
+realtime:
+  jobs:
+    - source: "batdongsan"
+      interval_minutes: 30
+      limit: 60
+    - source: "onehousing"
+      interval_minutes: 60
+      limit: 35
+    - source: "vinhomesonline"
+      interval_minutes: 120
+      limit: 24
+    - source: "vinhomesland"
+      interval_minutes: 360
+      limit: 4
+
+projects:
+  - slug: "vinhomes-ocean-park"
+    name: "Vinhomes Ocean Park"
+    aliases:
+      - "vinhomes ocean park"
+      - "ocean park gia lâm"
+      - "ocean park gia lam"
+      - "vop"
+      - "vop1"
+    district_hint: "Gia Lâm"
+    pages:
+      - source: "vinhomesland"
+        max_pages: 1
+        purpose: "sale"
+        property_type: "other"
+        url: "https://vinhomesland.vn/vinhomes-ocean-park/"
+      - source: "onehousing"
+        pagination: "query_page"
+        max_pages: 18
+        purpose: "sale"
+        property_type: "apartment"
+        url: "https://onehousing.vn/ban-can-ho-chung-cu-Vinhomes-Ocean-Park"
+      - purpose: "sale"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/ban-can-ho-chung-cu-vinhomes-ocean-park-gia-lam/gia-tu-2-ty-den-3-ty-dt-tu-30m2-den-50m2"
+      - purpose: "sale"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/ban-can-ho-chung-cu-vinhomes-ocean-park-gia-lam/gia-tu-3-ty-den-5-ty-dt-tu-50m2-den-80m2"
+      - purpose: "sale"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/ban-can-ho-chung-cu-vinhomes-ocean-park-gia-lam/gia-tu-5-ty-den-7-ty"
+      - purpose: "sale"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/ban-can-ho-chung-cu-vinhomes-ocean-park-gia-lam/dt-tu-80m2-den-100m2"
+      - purpose: "rent"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/cho-thue-can-ho-chung-cu-vinhomes-ocean-park-gia-lam/gia-tu-5-trieu-den-10-trieu"
+      - purpose: "rent"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/cho-thue-can-ho-chung-cu-vinhomes-ocean-park-gia-lam/dt-tu-30m2-den-50m2"
+
+  - slug: "vinhomes-smart-city"
+    name: "Vinhomes Smart City"
+    aliases:
+      - "vinhomes smart city"
+      - "smart city"
+      - "smart city tây mỗ"
+      - "smart city tay mo"
+      - "masteri west heights"
+      - "the sapphire vinhomes smart city"
+      - "the miami"
+      - "the sakura"
+    district_hint: "Nam Từ Liêm"
+    pages:
+      - source: "vinhomesland"
+        max_pages: 1
+        purpose: "sale"
+        property_type: "other"
+        url: "https://vinhomesland.vn/vinhomes-smart-city/"
+      - source: "onehousing"
+        pagination: "query_page"
+        max_pages: 10
+        purpose: "sale"
+        property_type: "apartment"
+        url: "https://onehousing.vn/ban-can-ho-chung-cu-Vinhomes-Smart-City"
+      - purpose: "sale"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/ban-can-ho-chung-cu-vinhomes-smart-city/gia-tu-3-ty-den-5-ty-dt-tu-30m2-den-50m2"
+      - purpose: "sale"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/ban-can-ho-chung-cu-vinhomes-smart-city/gia-tu-5-ty-den-7-ty-dt-tu-50m2-den-80m2"
+      - purpose: "sale"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/ban-can-ho-chung-cu-vinhomes-smart-city/gia-tu-2-ty-den-3-ty"
+      - purpose: "sale"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/ban-can-ho-chung-cu-vinhomes-smart-city/dt-tu-80m2-den-100m2"
+      - purpose: "rent"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/cho-thue-can-ho-chung-cu-vinhomes-smart-city/gia-tu-10-trieu-den-40-trieu"
+      - purpose: "rent"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/cho-thue-can-ho-chung-cu-vinhomes-smart-city/gia-duoi-10-trieu"
+      - purpose: "rent"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/cho-thue-can-ho-chung-cu-vinhomes-smart-city/dt-tu-50m2-den-80m2"
+      - purpose: "rent"
+        property_type: "apartment"
+        url: "https://batdongsan.com.vn/cho-thue-can-ho-chung-cu-vinhomes-smart-city/dt-tu-80m2-den-100m2"
+
+  - slug: "vinhomes-ocean-park-2"
+    name: "Vinhomes Ocean Park 2"
+    aliases:
+      - "vinhomes ocean park 2"
+      - "ocean park 2"
+      - "vop2"
+      - "the empire"
+    district_hint: "Hưng Yên"
+    pages:
+      - source: "vinhomesland"
+        max_pages: 1
+        purpose: "sale"
+        property_type: "other"
+        url: "https://vinhomesland.vn/vinhomes-ocean-park-2/"
+      - source: "onehousing"
+        pagination: "query_page"
+        max_pages: 2
+        purpose: "sale"
+        property_type: "villa"
+        url: "https://onehousing.vn/ban-lien-ke-shophouse-biet-thu-Vinhomes-Ocean-Park-2-The-Empire"
+      - purpose: "sale"
+        property_type: "villa"
+        url: "https://batdongsan.com.vn/ban-nha-biet-thu-lien-ke-vinhomes-ocean-park-2"
+
+  - slug: "vinhomes-ocean-park-3"
+    name: "Vinhomes Ocean Park 3"
+    aliases:
+      - "vinhomes ocean park 3"
+      - "ocean park 3"
+      - "vop3"
+      - "the crown"
+    district_hint: "Hưng Yên"
+    pages:
+      - source: "vinhomesland"
+        max_pages: 1
+        purpose: "sale"
+        property_type: "other"
+        url: "https://vinhomesland.vn/vinhomes-ocean-park-3/"
+      - source: "onehousing"
+        pagination: "query_page"
+        max_pages: 1
+        purpose: "sale"
+        property_type: "villa"
+        url: "https://onehousing.vn/ban-lien-ke-shophouse-biet-thu-Vinhomes-Ocean-Park-3-The-Crown"
+      - purpose: "sale"
+        property_type: "villa"
+        url: "https://batdongsan.com.vn/ban-nha-biet-thu-lien-ke-vinhomes-ocean-park-3"

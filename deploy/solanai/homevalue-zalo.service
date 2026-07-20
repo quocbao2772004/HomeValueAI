@@ -1,0 +1,18 @@
+[Unit]
+Description=HomeValue AI Zalo bot
+After=network.target homevalue-api.service
+Wants=homevalue-api.service
+
+[Service]
+WorkingDirectory=/home/anonymous/VINUNI/buildphase/C2-App-134/zalo
+Environment=NODE_ENV=production
+Environment=API_BASE=http://127.0.0.1:8000
+Environment=CHAT_PATH=/zalo/chat
+Environment=RESPOND_IN_GROUPS=1
+Environment=SEND_TYPING_HINT=1
+ExecStart=/usr/bin/node /home/anonymous/VINUNI/buildphase/C2-App-134/zalo/node_modules/.bin/tsx bot.ts
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

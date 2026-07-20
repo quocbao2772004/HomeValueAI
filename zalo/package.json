@@ -1,0 +1,14 @@
+{
+  "name": "homevalue-zalo-bot",
+  "version": "1.0.0",
+  "description": "Chatbot Zalo cho HomeValue AI",
+  "type": "module",
+  "scripts": {
+    "login": "npx tsx login.ts",
+    "start": "npx tsx bot.ts"
+  },
+  "dependencies": {
+    "tsx": "^4.7.0",
+    "zca-js": "^2.1.2"
+  }
+}

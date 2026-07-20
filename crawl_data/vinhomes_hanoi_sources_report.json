@@ -1,0 +1,23 @@
+{
+  "started_at": "2026-06-23T03:06:48.607872+00:00",
+  "sources": {
+    "homedy": {
+      "requested_pages": 1,
+      "fetched_pages": 1,
+      "records": 19
+    },
+    "vinhomesreal": {
+      "requested_pages": 3,
+      "fetched_pages": 3,
+      "records": 3
+    },
+    "bdsvinhomes": {
+      "requested_pages": 14,
+      "fetched_pages": 14,
+      "records": 14
+    }
+  },
+  "finished_at": "2026-06-23T03:07:12.135623+00:00",
+  "records_written": 36,
+  "output": "/home/anonymous/VINUNI/buildphase/C2-App-134/crawl_data/vinhomes_hanoi_sources.csv"
+}

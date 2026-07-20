@@ -1,0 +1,20 @@
+{
+  "metrics": {
+    "deduplication": {
+      "total_raw_listings": 854,
+      "duplicated_removed": 27,
+      "final_unique_listings": 827,
+      "deduplication_rate": 0.0316,
+      "meets_expectation": false
+    },
+    "freshness": {
+      "stale_after_days": 45,
+      "total_valuation_listings": 827,
+      "stale_listings_count": 0,
+      "invalid_date_listings_count": 0,
+      "freshness_violation_rate": 0.0,
+      "meets_expectation": true
+    }
+  },
+  "generated_at": "2026-06-27T01:37:47.273655+00:00"
+}

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trợ lý định giá - HomeValue AI</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=20260711-context-fix1" />
+    <link rel="stylesheet" href="virtual_assistant.css?v=20260711-context-fix1" />
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script src="virtual_assistant.js?v=20260711-context-fix1" defer></script>
+  </head>
+  <body class="va-body">
+    <div class="va-shell">
+      <aside class="va-sidebar" id="vaSidebar">
+        <div class="va-sidebar-head">
+          <a class="va-back" href="index.html" title="Về trang chính">
+            <i data-lucide="arrow-left"></i>
+            <span>Trang chính</span>
+          </a>
+        </div>
+        <button id="vaNewSession" class="va-new-btn" type="button">
+          <i data-lucide="plus"></i>
+          <span>Phiên chat mới</span>
+        </button>
+        <div id="vaCreditWallet" class="va-pro-btn" style="cursor: default; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="coins"></i>
+            <span id="vaCreditBalance">Ví: 5 Credits</span>
+          </div>
+          <button id="vaTopUpBtn" style="padding: 2px 8px; min-height: 24px; font-size: 0.75rem; border-radius: 4px; border: 1px solid currentColor; background: transparent; color: inherit; cursor: pointer;">Nạp</button>
+        </div>
+        <button id="vaUpgradeProSidebarBtn" class="va-pro-btn" style="margin-top: 8px;" type="button">
+          <i data-lucide="crown"></i>
+          <span>Nâng cấp Agent Pro</span>
+        </button>
+        <div id="vaUserScope" class="va-user-scope" aria-live="polite"></div>
+        <div class="va-session-list" id="vaSessionList"></div>
+        <div class="va-sidebar-foot">
+          <span id="vaApiStatus" class="status-pill status-wait">Đang kiểm tra API</span>
+        </div>
+      </aside>
+
+      <main class="va-main">
+        <header class="va-topbar">
+          <button id="vaMenuToggle" class="icon-button ghost icon-only" type="button" title="Danh sách phiên">
+            <i data-lucide="menu"></i>
+          </button>
+          <div class="va-title">
+            <span class="brand-mark" aria-hidden="true"><i data-lucide="bot"></i></span>
+            <div>
+              <h1>Trợ lý định giá</h1>
+              <p id="vaSubtitle">Hỏi về giá bán, giá thuê, tiện ích quanh căn</p>
+            </div>
+          </div>
+          <div class="va-top-actions">
+            <button id="vaExportPdfBtn" class="icon-button outline" type="button" title="Xuất Báo Cáo PDF">
+              <i data-lucide="download"></i>
+              <span>Xuất PDF</span>
+            </button>
+            <button id="vaClearSession" class="icon-button danger icon-only" type="button" title="Xóa phiên hiện tại">
+              <i data-lucide="trash-2"></i>
+            </button>
+          </div>
+        </header>
+        <div id="printHeader" style="display: none;">
+          <div class="print-header-content">
+            <div class="brand">
+              <i data-lucide="building-2"></i> HOMEVALUE PRO
+            </div>
+            <div class="report-title">
+              <h1>BÁO CÁO ĐỊNH GIÁ & PHÂN TÍCH THỊ TRƯỜNG</h1>
+              <p>Thực hiện bởi chuyên viên môi giới độc quyền</p>
+            </div>
+            <div class="report-meta" style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
+              <div id="printAvatarWrapper" style="position: relative; display: none; width: 60px; height: 60px;">
+                <img id="printAvatar" src="" alt="Broker Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                <div id="printProBadge" style="display: none; position: absolute; top: -5px; right: -5px; width: 22px; height: 22px; background: linear-gradient(135deg, #FFDF00, #D4AF37); border-radius: 50%; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); z-index: 10;"><i data-lucide="crown" style="width: 12px; height: 12px; fill: white;"></i></div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <span><strong>Môi Giới:</strong> Nguyễn Văn A</span>
+                <span><strong>Điện Thoại:</strong> 0988.xxx.xxx</span>
+                <span><strong>Ngày báo cáo:</strong> <span id="printDate"></span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="vaChatLog" class="va-chat-log" aria-live="polite"></div>
+
+        <form id="vaChatForm" class="va-chat-form">
+          <textarea id="vaChatMessage" rows="1" placeholder="Nhập câu hỏi, ví dụ: Định giá bán Vinhomes Smart City 54m2 2PN..."></textarea>
+          <button class="primary-button" type="submit" title="Gửi">
+            <i data-lucide="send"></i>
+          </button>
+        </form>
+      </main>
+    </div>
+
+    <!-- Combined Pricing Modal -->
+    <div id="vaProModal" class="va-modal hidden">
+      <div class="va-modal-backdrop"></div>
+      <div class="va-modal-content" style="max-width: 700px;">
+        <button class="va-modal-close icon-button icon-only" id="vaProModalClose" type="button"><i data-lucide="x"></i></button>
+        <div class="va-modal-header" style="margin-bottom: 20px;">
+          <h2 style="font-size: 1.8rem;">Chọn Gói Dịch Vụ</h2>
+          <p style="color: var(--muted); margin-top: 8px;">Phục vụ mọi nhu cầu từ tra cứu cá nhân đến chốt sale chuyên nghiệp</p>
+        </div>
+        <div class="va-modal-body pricing-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <!-- Credit Plan -->
+          <div class="pricing-card" style="border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column;">
+            <div style="text-align: center; margin-bottom: 16px;">
+              <i data-lucide="coins" class="pro-icon" style="color: var(--teal); background: rgba(0,184,163,0.1);"></i>
+              <h3 style="margin: 10px 0 5px; font-size: 1.2rem; color: var(--ink);">Gói Cơ Bản (Credit)</h3>
+              <div class="pro-price" style="margin-bottom: 0;">Nạp <span>50k</span> / 100 Điểm</div>
+            </div>
+            <ul class="pro-features" style="margin-bottom: 20px; flex-grow: 1;">
+              <li><i data-lucide="check-circle"></i> Trừ 1 điểm/lần định giá</li>
+              <li><i data-lucide="check-circle"></i> Trừ 2 điểm/lần tra bản đồ</li>
+              <li><i data-lucide="check-circle"></i> Xem khoảng giá thương lượng</li>
+              <li><i data-lucide="check-circle"></i> Xem biểu đồ xu hướng</li>
+              <li style="color: var(--muted);"><i data-lucide="x-circle" style="color: var(--muted);"></i> Không hỗ trợ Xuất PDF</li>
+            </ul>
+            <button id="vaTopUpCreditBtn" class="primary-button pro-checkout-btn" style="background: linear-gradient(135deg, var(--teal) 0%, #009684 100%);">Nạp 50.000đ</button>
+          </div>
+          
+          <!-- Agent Pro Plan -->
+          <div class="pricing-card pro-card" style="border: 2px solid #d39e00; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; position: relative; background: #fffdf5;">
+            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #d39e00; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; white-space: nowrap;">ĐỀ XUẤT CHO MÔI GIỚI</div>
+            <div style="text-align: center; margin-bottom: 16px; margin-top: 8px;">
+              <i data-lucide="crown" class="pro-icon"></i>
+              <h3 style="margin: 10px 0 5px; font-size: 1.2rem; color: #d39e00;">Gói Agent Pro</h3>
+              <div class="pro-price" style="margin-bottom: 0;">Chỉ <span>299k</span> / Tháng</div>
+            </div>
+            <ul class="pro-features" style="margin-bottom: 20px; flex-grow: 1;">
+              <li><i data-lucide="check-circle"></i> <strong>Chat Không Giới Hạn</strong></li>
+              <li><i data-lucide="check-circle"></i> Xuất Báo Cáo PDF Chuyên Nghiệp</li>
+              <li><i data-lucide="check-circle"></i> Thiết kế riêng cho chốt Sale</li>
+              <li><i data-lucide="check-circle"></i> Ưu tiên phản hồi tốc độ cao</li>
+            </ul>
+            <button id="vaBuyProBtn" class="primary-button pro-checkout-btn">Nâng Cấp Ngay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

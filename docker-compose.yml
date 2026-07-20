@@ -1,0 +1,41 @@
+services:
+  apivinhomes:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "1108:8000"
+    env_file:
+      - .env
+    environment:
+      VALUATION_CORS_ORIGINS: http://localhost:2707,http://127.0.0.1:2707,http://localhost:5173,http://127.0.0.1:5173,https://solanai.us,https://www.solanai.us
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  solanai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "2707:2707"
+    env_file:
+      - .env
+    environment:
+      FRONTEND_HOST: 0.0.0.0
+      FRONTEND_PORT: 2707
+      FRONTEND_PROXY_API_BASE: http://apivinhomes:8000
+    command: ["python", "scripts/frontend_proxy.py"]
+    depends_on:
+      - apivinhomes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:2707/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

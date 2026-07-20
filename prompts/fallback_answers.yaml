@@ -1,0 +1,68 @@
+greeting: >-
+  Chào bạn, mình là HomeValue AI. Mình có thể hỗ trợ định giá bán/thuê, xem xu hướng giá và so sánh căn tương đồng trong các dự án Vinhomes Hà Nội. Bạn gửi dự án, diện tích, loại căn và mục đích bán hay thuê nhé.
+thanks: >-
+  Không có gì. Khi cần định giá căn nào, bạn gửi dự án, diện tích, số phòng ngủ và mục đích bán/thuê là mình xử lý tiếp.
+help: >-
+  Bạn có thể hỏi theo 3 kiểu: định giá một căn cụ thể, xem xu hướng thị trường hoặc tra bảng giá tham khảo. Ví dụ: Định giá bán căn hộ Vinhomes Smart City 54m2 2PN full nội thất.
+valuation_missing: >-
+  Mình cần thêm {missing_labels} để định giá sát hơn. {retrieval_hint_text} Bạn gửi thêm dự án, diện tích, số phòng ngủ, loại căn và mục đích bán/thuê là được.
+trend_missing: >-
+  Mình cần thêm {missing_labels} để xem đúng xu hướng thị trường. {retrieval_hint_text} Bạn cho mình tên dự án hoặc khu đô thị nhé.
+snapshot_missing: >-
+  Mình cần thêm {missing_labels} để tra bảng giá tham khảo đúng dự án. {retrieval_hint_text} Bạn cho mình tên dự án hoặc khu đô thị nhé.
+amenity_missing: >-
+  Mình cần thêm {missing_labels} để tìm tiện ích quanh căn. Bạn cho mình tên dự án, tòa hoặc phân khu nếu có nhé.
+news_missing: >-
+  Mình cần thêm tên dự án hoặc khu đô thị để kiểm tra tin tức khu vực liên quan đến giá.
+news_basic: >-
+  Gói Cơ Bản chưa hỗ trợ tự động tổng hợp và kiểm chứng tin tức khu vực cho {project}. Bạn vẫn có thể xem khoảng giá và xu hướng cơ bản; nếu cần phân tích sự kiện, nguồn tin và tác động theo thời gian, bạn có thể dùng Agent Pro.
+valuation: >-
+  {example_answer}
+trend: >-
+  Xu hướng {project} ({property_type_label}, {purpose_label}) hiện đang quanh {primary_median_text} trong ngắn hạn. {snapshot_count_text} Đây là mức tham khảo thị trường, nên vẫn cần đối chiếu căn cụ thể trước khi ra giá.
+news: >-
+  Tin liên quan đến {project}: {news_summary_text} {outlook_summary_text} Đây là bối cảnh tham khảo, không phải cam kết giá chắc chắn tăng hoặc giảm.
+snapshot: >-
+  Mình tìm thấy {reference_count} dòng bảng giá tham khảo cho {project}. Ví dụ {first_label}: {range_text}. Các dòng này là snapshot tham khảo, không phải giao dịch chốt.
+amenity: >-
+  Mình đã chuẩn bị phần kiểm tra tiện ích quanh {location_label}. {advisory_text} Trọng tâm khi thuê nên là giao thông, siêu thị và y tế; trường học, công viên hoặc khu ăn uống là điểm cộng tùy nhu cầu sống.
+no_snapshot: >-
+  Chưa có bảng giá tham khảo phù hợp với bộ lọc này. Bạn có thể đổi dự án, loại hình hoặc mục đích bán/thuê để kiểm tra lại.
+error: >-
+  Mình chưa xử lý được yêu cầu này: {error}. Bạn thử gửi lại với dự án, diện tích, loại căn và mục đích bán/thuê nhé.
+default: >-
+  Mình đã nhận được yêu cầu. Bạn gửi thêm dự án, diện tích, loại căn và mục đích bán/thuê để mình hỗ trợ chính xác hơn.
+greeting_en: >-
+  Hi, I am HomeValue AI. I can help estimate sale or rental prices, check market trends, compare similar units, and review nearby amenities for Vinhomes projects in Hanoi.
+thanks_en: >-
+  You are welcome. When you need a valuation, send me the project, area, number of bedrooms, and whether it is for sale or rent.
+help_en: >-
+  You can ask me to estimate a unit price, review market trends, check reference price snapshots, or search nearby amenities. Example: Estimate the sale price for a 54m2 2-bedroom apartment at Vinhomes Smart City with full furniture.
+valuation_missing_en: >-
+  I need {missing_labels_en} to make the estimate more accurate. Please send the project, area in square meters, bedroom count, property type, and whether it is for sale or rent.
+trend_missing_en: >-
+  I need {missing_labels_en} to check the right market trend. Please send the project or urban area name.
+snapshot_missing_en: >-
+  I need {missing_labels_en} to find the right reference price snapshot. Please send the project or urban area name.
+amenity_missing_en: >-
+  I need {missing_labels_en} to search nearby amenities. Please send the project, tower, or subdivision if available.
+news_missing_en: >-
+  I need the project or urban area name to check relevant local news.
+news_basic_en: >-
+  The Basic plan does not include automatic local news verification for {project}. You can still review valuation and basic market trends; use Agent Pro if you need event sources and impact analysis.
+valuation_en: >-
+  {answer_example_en}
+trend_en: >-
+  The current short-term trend for {project} ({property_type_label_en}, {purpose_label_en}) is around {primary_median_text}. {snapshot_count_text_en} Treat this as a market reference and cross-check the exact unit before pricing.
+news_en: >-
+  Relevant news for {project}: {news_summary_text} {outlook_summary_text} Treat this as market context, not a guarantee that prices will rise or fall.
+snapshot_en: >-
+  I found {reference_count} reference price snapshot rows for {project}. For example, {first_label}: {range_text}. These are reference snapshots, not confirmed closed transactions.
+amenity_en: >-
+  I prepared nearby amenity checks for {location_label}. {advisory_text_en} For rental decisions, focus first on transport, groceries, and healthcare; schools, parks, and dining/shopping are extra advantages depending on the tenant profile.
+no_snapshot_en: >-
+  I do not have a matching reference price snapshot for this filter yet. Try changing the project, property type, or sale/rent purpose.
+error_en: >-
+  I could not process this request yet: {error}. Please try again with the project, area, property type, and sale/rent purpose.
+default_en: >-
+  I got your request. Please add the project, area, property type, and sale/rent purpose so I can help more accurately.

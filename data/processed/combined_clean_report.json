@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-06-24T03:15:59.321210+00:00",
+  "input_counts": {
+    "data/processed/listings.csv": 854,
+    "data/processed/property_candidates.csv": 192,
+    "crawl_data/market_vinhomes.csv": 8,
+    "crawl_data/vinhomes_hanoi_sources.csv": 36,
+    "data/processed/price_snapshots.csv": 75
+  },
+  "raw_listing_rows": 1072,
+  "dropped_rows": {
+    "missing_or_invalid": 11,
+    "outlier": 1,
+    "total": 12
+  },
+  "clean_rows_before_dedupe": 1060,
+  "duplicate_groups_collapsed": 48,
+  "clean_rows_after_dedupe": 1007,
+  "reference_rows": 93,
+  "sale_training_rows": 808,
+  "sale_prediction_rows": 808,
+  "model_training_scope": "sale rows with project_slug starting vinhomes- and basis in listing/market_listing/hanoi_listing",
+  "model_metrics": {
+    "target": "price_per_m2_vnd",
+    "mae_price_per_m2_vnd": 8233958.975201525,
+    "mape": 0.09227529890973468,
+    "r2": 0.7552871372897676,
+    "test_rows": 162
+  },
+  "outputs": {
+    "clean_listings": "data/processed/combined_clean_listings.csv",
+    "clean_references": "data/processed/combined_clean_references.csv",
+    "predictions": "data/processed/house_price_predictions.csv",
+    "prediction_summary": "data/processed/house_price_prediction_summary.csv",
+    "model": "models/combined_sale_regression_model.joblib"
+  }
+}

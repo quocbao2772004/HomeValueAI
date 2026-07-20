@@ -1,0 +1,18 @@
+[Unit]
+Description=HomeValue AI FastAPI service for solanai.us
+After=network.target
+
+[Service]
+Type=simple
+User=anonymous
+WorkingDirectory=/home/anonymous/VINUNI/buildphase/C2-App-134
+Environment=VALUATION_ENV_FILE=/home/anonymous/VINUNI/buildphase/C2-App-134/.env
+Environment=VALUATION_HOST=127.0.0.1
+Environment=VALUATION_PORT=8000
+Environment=VALUATION_RELOAD=0
+ExecStart=/usr/bin/env python3 /home/anonymous/VINUNI/buildphase/C2-App-134/scripts/serve.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

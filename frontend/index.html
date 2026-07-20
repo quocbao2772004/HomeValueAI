@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HomeValue AI - Vinhomes Hà Nội</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=20260711-context-fix1" />
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script src="app.js?v=20260711-context-fix1" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <i data-lucide="building-2"></i>
+          </span>
+          <div>
+            <h1>HomeValue AI</h1>
+            <p>Vinhomes Hà Nội</p>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <span id="apiStatus" class="status-pill status-wait">Đang kiểm tra API</span>
+          <button id="authButton" class="icon-button secondary auth-button" type="button" title="Đăng nhập hoặc quản lý tài khoản">
+            <i data-lucide="user-circle"></i>
+            <span id="authButtonLabel">Đăng nhập</span>
+          </button>
+          <button id="refreshMarket" class="icon-button secondary" type="button" title="Tải lại dữ liệu thị trường">
+            <i data-lucide="refresh-cw"></i>
+            <span>Tải lại</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <section class="surface chat-panel" aria-labelledby="chatTitle">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">Chat</span>
+              <h2 id="chatTitle">Trợ lý định giá</h2>
+              <p id="chatHistoryMeta">Chưa có lịch sử chat.</p>
+            </div>
+            <div class="panel-actions">
+              <button id="samplePrompt" class="icon-button ghost" type="button" title="Điền ví dụ">
+                <i data-lucide="wand-2"></i>
+                <span>Ví dụ</span>
+              </button>
+              <button id="clearChat" class="icon-button danger" type="button" title="Xóa lịch sử chat">
+                <i data-lucide="trash-2"></i>
+                <span>Xóa</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="chatLog" class="chat-log" aria-live="polite"></div>
+
+          <form id="chatForm" class="chat-form">
+            <textarea id="chatMessage" rows="3" placeholder="Hỏi về giá bán, giá thuê hoặc xu hướng trong khu..."></textarea>
+            <button class="primary-button" type="submit">
+              <i data-lucide="send"></i>
+              <span>Gửi</span>
+            </button>
+          </form>
+        </section>
+
+        <section class="surface form-panel" aria-labelledby="formTitle">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">Định giá</span>
+              <h2 id="formTitle">Thông tin căn</h2>
+            </div>
+            <button id="resetForm" class="icon-button ghost" type="button" title="Xóa form">
+              <i data-lucide="rotate-ccw"></i>
+              <span>Xóa</span>
+            </button>
+          </div>
+
+          <form id="valuationForm" class="valuation-form">
+            <fieldset class="segmented" aria-label="Mục đích">
+              <label>
+                <input type="radio" name="purpose" value="sale" checked />
+                <span>Bán</span>
+              </label>
+              <label>
+                <input type="radio" name="purpose" value="rent" />
+                <span>Thuê</span>
+              </label>
+            </fieldset>
+
+            <div class="field-grid">
+              <label class="wide">
+                <span>Dự án</span>
+                <select id="project" name="project" required></select>
+              </label>
+              <label>
+                <span>Loại hình</span>
+                <select id="propertyType" name="property_type" required>
+                  <option value="apartment">Căn hộ</option>
+                  <option value="villa">Biệt thự</option>
+                  <option value="townhouse">Liền kề</option>
+                  <option value="shophouse">Shophouse</option>
+                  <option value="house">Nhà phố</option>
+                  <option value="other">Khác</option>
+                </select>
+              </label>
+              <label>
+                <span>Diện tích m²</span>
+                <input id="areaM2" name="area_m2" type="number" min="1" step="0.1" value="54.2" required />
+              </label>
+              <label>
+                <span>Phòng ngủ</span>
+                <input id="bedrooms" name="bedrooms" type="number" min="0" step="1" value="2" />
+              </label>
+              <label>
+                <span>View</span>
+                <select id="view" name="view">
+                  <option value="">Chưa rõ</option>
+                  <option value="noi khu">Nội khu</option>
+                  <option value="cong vien">Công viên</option>
+                  <option value="ho">Hồ</option>
+                  <option value="thanh pho">Thành phố</option>
+                </select>
+              </label>
+              <label>
+                <span>Nội thất</span>
+                <select id="furniture" name="furniture">
+                  <option value="">Chưa rõ</option>
+                  <option value="ban giao co ban">Bàn giao cơ bản</option>
+                  <option value="full">Full nội thất</option>
+                  <option value="trong">Trống</option>
+                </select>
+              </label>
+              <label id="labelSubdivision" style="display: none;">
+                <span>Phân khu</span>
+                <select id="subdivision" name="subdivision">
+                  <option value="">Chưa rõ</option>
+                </select>
+              </label>
+              <label id="labelTower" style="display: none;">
+                <span>Mã tòa</span>
+                <select id="tower" name="tower">
+                  <option value="">Chưa rõ</option>
+                </select>
+              </label>
+            </div>
+
+            <button id="runValuation" class="primary-button full-width" type="submit">
+              <i data-lucide="calculator"></i>
+              <span>Định giá ngay</span>
+            </button>
+          </form>
+        </section>
+
+        <section class="project-info-section" aria-labelledby="projectInfoTitle">
+          <div class="project-info-header">
+            <div>
+              <span class="eyebrow">Thông tin dự án</span>
+              <h2 id="projectInfoTitle">Tổng quan định giá</h2>
+            </div>
+            <nav class="tabs-nav" aria-label="Chọn nhóm thông tin">
+              <button class="tab-btn active" type="button" data-target="result-panel">Kết quả</button>
+              <button class="tab-btn" type="button" data-target="data-panel">Dữ liệu</button>
+              <button class="tab-btn" type="button" data-target="market-panel">Xu hướng</button>
+              <button class="tab-btn" type="button" data-target="amenities-panel">Tiện ích</button>
+              <button class="tab-btn" type="button" data-target="news-panel">Tin tức mới nhất</button>
+            </nav>
+          </div>
+
+          <div class="tabs-content">
+            <section id="result-panel" class="tab-panel active" aria-labelledby="resultTitle">
+              <div class="section-heading">
+                <div>
+                  <span class="eyebrow">Kết quả</span>
+                  <h2 id="resultTitle">Khoảng giá hợp lý</h2>
+                </div>
+                <span id="resultMeta" class="result-meta">Chưa có lần định giá nào trong phiên này.</span>
+              </div>
+
+              <div class="result-layout">
+                <div class="estimate-focus">
+                  <span class="metric-label">
+                    Giá trung vị dễ giao dịch (P50)
+                    <button
+                      class="info-tooltip"
+                      type="button"
+                      title="Mốc giữa thị trường, dùng làm giá neo chính."
+                      aria-label="P50 là mốc giữa thị trường, dùng làm giá neo chính."
+                      data-tooltip="Mốc giữa thị trường, dùng làm giá neo chính."
+                    >
+                      <i data-lucide="info"></i>
+                    </button>
+                  </span>
+                  <strong id="p50Value">-</strong>
+                </div>
+
+                <div class="metric-strip">
+                  <div class="metric">
+                    <span class="metric-label">
+                      Giá thấp tham khảo (P10)
+                      <button
+                        class="info-tooltip"
+                        type="button"
+                        title="Mốc thấp: khoảng 10% mẫu rẻ hơn mức này."
+                        aria-label="P10 là mốc thấp, khoảng 10% mẫu rẻ hơn mức này."
+                        data-tooltip="Mốc thấp: khoảng 10% mẫu rẻ hơn mức này."
+                      >
+                        <i data-lucide="info"></i>
+                      </button>
+                    </span>
+                    <strong id="p10Value">-</strong>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-label">
+                      Giá cao tham khảo (P90)
+                      <button
+                        class="info-tooltip"
+                        type="button"
+                        title="Mốc cao: khoảng 10% mẫu đắt hơn mức này."
+                        aria-label="P90 là mốc cao, khoảng 10% mẫu đắt hơn mức này."
+                        data-tooltip="Mốc cao: khoảng 10% mẫu đắt hơn mức này."
+                      >
+                        <i data-lucide="info"></i>
+                      </button>
+                    </span>
+                    <strong id="p90Value">-</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chart-area">
+                <canvas id="valuationChart" width="640" height="220" aria-label="Khoảng định giá P10 P50 P90"></canvas>
+              </div>
+
+              <div class="signal-grid">
+                <div>
+                  <span class="label">Độ tin cậy</span>
+                  <strong id="confidenceValue">-</strong>
+                </div>
+                <div>
+                  <span class="label">Mẫu so sánh</span>
+                  <strong id="sampleValue">-</strong>
+                </div>
+                <div>
+                  <span class="label">Dữ liệu mới nhất</span>
+                  <strong id="freshnessValue">-</strong>
+                </div>
+              </div>
+
+              <div class="factor-box">
+                <h3>Yếu tố ảnh hưởng</h3>
+                <ul id="factorList">
+                  <li>Chạy định giá để xem các yếu tố kéo giá lên/xuống.</li>
+                </ul>
+              </div>
+            </section>
+
+            <section id="data-panel" class="tab-panel" aria-labelledby="dataTitle">
+              <div class="section-heading">
+                <div>
+                  <span class="eyebrow">Dữ liệu</span>
+                  <h2 id="dataTitle">Nguồn thị trường</h2>
+                  <p id="dataMeta">Đang tải dữ liệu tổng hợp.</p>
+                </div>
+                <a id="openMapLink" class="icon-button ghost" href="https://www.google.com/maps/search/?api=1&query=Vinhomes%20Smart%20City" target="_blank" rel="noreferrer" title="Mở Google Maps">
+                  <i data-lucide="map"></i>
+                  <span>Mở map</span>
+                </a>
+              </div>
+
+              <div class="summary-grid">
+                <div>
+                  <span class="label">Tin thô</span>
+                  <strong id="rawRowsValue">-</strong>
+                </div>
+                <div>
+                  <span class="label">Tin unique</span>
+                  <strong id="uniqueRowsValue">-</strong>
+                </div>
+                <div>
+                  <span class="label">Tin trùng</span>
+                  <strong id="duplicateRowsValue">-</strong>
+                </div>
+                <div>
+                  <span class="label">Nguồn phủ</span>
+                  <strong id="sourceCoverageValue">-</strong>
+                </div>
+              </div>
+
+              <div class="data-layout">
+                <div>
+                  <div class="summary-chart-area">
+                    <canvas id="summaryChart" width="640" height="280" aria-label="Biểu đồ tổng hợp nguồn dữ liệu"></canvas>
+                  </div>
+                  <ul id="evaluationNotes" class="evaluation-notes">
+                    <li>Đang tải ghi chú chất lượng dữ liệu.</li>
+                  </ul>
+                </div>
+                <div class="map-preview">
+                  <div class="map-preview-heading">
+                    <span class="label">Vị trí đang xem</span>
+                    <strong id="mapMeta">Chọn một căn trong bảng để xem vị trí.</strong>
+                  </div>
+                  <iframe
+                    id="mapFrame"
+                    class="map-frame"
+                    title="Google Maps vị trí căn hộ"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    src="https://www.google.com/maps?q=Vinhomes%20Smart%20City&output=embed"
+                  ></iframe>
+                </div>
+              </div>
+            </section>
+
+            <section id="market-panel" class="tab-panel" aria-labelledby="marketTitle">
+              <div class="section-heading">
+                <div>
+                  <span class="eyebrow">Thị trường</span>
+                  <h2 id="marketTitle">Xu hướng giá</h2>
+                </div>
+              </div>
+
+              <div class="chart-area" id="trendChartArea">
+                <canvas id="trendChart" width="640" height="220" aria-label="Biểu đồ xu hướng giá"></canvas>
+                <div id="trendEmptyState" class="empty-state" style="display: none;">Chưa tải trend.</div>
+              </div>
+            </section>
+
+            <section id="amenities-panel" class="tab-panel" aria-labelledby="amenitiesTitle">
+              <div class="section-heading">
+                <div>
+                  <span class="eyebrow">Tiện ích</span>
+                  <h2 id="amenitiesTitle">Quanh căn thuê</h2>
+                  <p id="amenitiesMeta">Chạy định giá thuê để xem tiện ích quanh căn.</p>
+                </div>
+                <button id="refreshAmenities" class="icon-button ghost" type="button" title="Tìm tiện ích quanh căn">
+                  <i data-lucide="search"></i>
+                  <span>Tìm</span>
+                </button>
+              </div>
+
+              <div id="amenityHighlights" class="amenity-highlights">
+                <div class="empty-state">Chưa có truy vấn tiện ích.</div>
+              </div>
+
+              <ul id="amenityAdviceList" class="amenity-advice-list">
+                <li>Chọn dự án hoặc căn tương đồng để xem tổng quan tiện ích.</li>
+              </ul>
+
+              <div id="amenityCards" class="amenity-grid">
+                <div class="empty-state">Chưa có tiện ích để hiển thị.</div>
+              </div>
+            </section>
+
+            <section id="news-panel" class="tab-panel" aria-labelledby="newsTitle">
+              <div class="section-heading">
+                <div>
+                  <span class="eyebrow">Tin tức</span>
+                  <h2 id="newsTitle">Tin tức mới nhất</h2>
+                  <p id="newsMeta">Đang tải tin liên quan đến dự án.</p>
+                </div>
+              </div>
+              <div id="newsGrid" class="news-grid">
+                <div class="empty-state">Đang tải tin tức.</div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="comps-panel" class="surface comps-panel" aria-labelledby="compsTitle">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">Căn tương tự</span>
+              <h2 id="compsTitle">Căn tương đồng</h2>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mô tả căn</th>
+                  <th>Dự án</th>
+                  <th>DT</th>
+                  <th>PN</th>
+                  <th>Giá</th>
+                  <th>Điểm</th>
+                  <th>Map</th>
+                </tr>
+              </thead>
+              <tbody id="compRows">
+                <tr>
+                  <td colspan="7">Chạy định giá để xem căn so sánh.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+</div>
+
+<div id="authDialog" class="auth-dialog" hidden>
+      <button class="auth-backdrop" type="button" aria-label="Đóng đăng nhập" data-auth-close></button>
+      <section class="auth-panel" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+        <header class="auth-header">
+          <div>
+            <span class="eyebrow">Tài khoản</span>
+            <h2 id="authTitle">Đăng nhập</h2>
+          </div>
+          <button id="authClose" class="icon-button ghost icon-only" type="button" title="Đóng">
+            <i data-lucide="x"></i>
+          </button>
+        </header>
+
+        <div class="auth-mode-tabs" role="tablist" aria-label="Chọn chế độ tài khoản">
+          <button class="is-active" type="button" data-auth-mode="login">Đăng nhập</button>
+          <button type="button" data-auth-mode="register">Đăng ký</button>
+        </div>
+
+        <div id="authSessionSummary" class="auth-session-summary" hidden>
+          <div style="display: flex; gap: 16px; margin-bottom: 24px; align-items: center; justify-content: center; flex-direction: column;">
+            <div style="position: relative; width: 80px; height: 80px;">
+              <img id="authAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--surface); box-shadow: 0 4px 12px rgba(0,0,0,0.1); background: #f0f0f0; transition: all 0.3s;">
+              <div id="authProBadge" style="display: none; position: absolute; top: -5px; right: -5px; width: 26px; height: 26px; background: linear-gradient(135deg, #FFDF00, #D4AF37); border-radius: 50%; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"><i data-lucide="crown" style="width: 14px; height: 14px; fill: white;"></i></div>
+              <button id="authEditAvatarBtn" class="icon-button outline icon-only" style="position: absolute; bottom: -4px; right: -4px; width: 32px; height: 32px; border-radius: 50%; background: var(--surface); box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Đổi Avatar (Yêu cầu Agent Pro)">
+                <i data-lucide="camera" style="width: 16px; height: 16px; color: var(--teal);"></i>
+              </button>
+              <input type="file" id="authAvatarInput" accept="image/*" style="display: none;">
+              <!-- POPUP Avatar -->
+              <div id="avatarPopover" style="display: none; position: absolute; top: 85px; left: 50%; transform: translateX(-50%); background: var(--surface); border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.2); border-radius: 12px; z-index: 100; padding: 12px; width: 220px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <h4 style="margin: 0; font-size: 0.9rem;">Chọn Avatar</h4>
+                  <button id="closeAvatarPopover" style="background: none; border: none; cursor: pointer; color: var(--text-light); padding: 0;"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;" id="avatarTemplatesGrid">
+                </div>
+                <button id="authAvatarUploadBtn" class="icon-button outline full-width" style="font-size: 0.85rem; padding: 6px; justify-content: center;">
+                  <i data-lucide="upload"></i> Tải ảnh lên
+                </button>
+              </div>
+            </div>
+            <div style="text-align: center;">
+              <span class="label" style="display: block; margin-bottom: 4px;">Đang đăng nhập</span>
+              <strong id="authSessionName" style="display: block; font-size: 1.2rem;">-</strong>
+              <small id="authSessionEmail">-</small>
+            </div>
+          </div>
+          <button id="authLogout" class="icon-button danger full-width" type="button">
+            <i data-lucide="log-out"></i>
+            <span>Đăng xuất</span>
+          </button>
+        </div>
+
+        <form id="authForm" class="auth-form">
+          <label id="authNameField" hidden>
+            <span>Họ tên</span>
+            <input id="authName" name="name" autocomplete="name" minlength="2" maxlength="80" />
+          </label>
+          <label>
+            <span>Email</span>
+            <input id="authEmail" name="email" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            <span>Mật khẩu</span>
+            <input id="authPassword" name="password" type="password" autocomplete="current-password" minlength="6" required />
+          </label>
+          <p id="authMessage" class="auth-message" role="status"></p>
+          <button id="authSubmit" class="primary-button full-width" type="submit">
+            <i data-lucide="log-in"></i>
+            <span>Đăng nhập</span>
+          </button>
+          <div id="authDemoNote" class="auth-demo-note">
+            <strong>Tài khoản Agent Pro test</strong>
+            <span>Email: <code>agentpro.test@solanai.us</code></span>
+            <span>Mật khẩu: <code>AgentPro@123</code></span>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <section id="assistantWidget" class="assistant-widget" aria-label="Trợ lý định giá" hidden>
+      <iframe
+        id="assistantFrame"
+        title="Trợ lý định giá"
+        src="virtual_assistant.html?embed=1&v=20260711-context-fix1"
+      ></iframe>
+    </section>
+
+    <button
+      id="chatLauncher"
+      class="chat-launcher"
+      type="button"
+      title="Mở trợ lý định giá"
+      aria-controls="assistantWidget"
+      aria-expanded="false"
+    >
+      <i data-lucide="message-circle"></i>
+      <span class="chat-launcher-label">Trợ lý</span>
+    </button>
+  </body>
+</html>
