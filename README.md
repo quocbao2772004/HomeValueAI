@@ -4,6 +4,10 @@ HomeValue AI is a FastAPI-based real-estate valuation and advisory assistant for
 
 The core principle is simple: backend services own the numbers and evidence; the chatbot only explains the allowed context in a natural advisory style.
 
+## Live Demo
+
+Try the deployed demo at [https://c2-app-134.solanai.us/](https://c2-app-134.solanai.us/).
+
 ## Screenshots
 
 ### Valuation Dashboard
