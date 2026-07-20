@@ -454,17 +454,23 @@ function applyPremiumFromAuth() {
 }
 
 function applyCreditsFromAuth() {
-  const balance = Number(state.auth?.user?.credit_balance);
-  if (!Number.isFinite(balance)) return;
+  const balance = finiteNumberOrNull(state.auth?.user?.credit_balance);
+  if (balance === null) return;
   state.credits = Math.max(0, Math.floor(balance));
   localStorage.setItem("homevalue_credits", String(state.credits));
 }
 
 function initialCredits(user) {
-  const balance = Number(user?.credit_balance);
-  if (Number.isFinite(balance)) return Math.max(0, Math.floor(balance));
+  const balance = finiteNumberOrNull(user?.credit_balance);
+  if (balance !== null) return Math.max(0, Math.floor(balance));
   const stored = Number.parseInt(localStorage.getItem("homevalue_credits") || "5", 10);
   return Number.isFinite(stored) ? Math.max(0, stored) : 5;
+}
+
+function finiteNumberOrNull(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
 }
 
 async function boot() {
@@ -514,11 +520,12 @@ function applyServerEntitlements(response) {
   } else if (entitlements.is_pro === true) {
     state.isPremium = true;
   }
-  const balanceAfter = Number(response?.credits?.balance_after);
-  if (Number.isFinite(balanceAfter)) {
+  const balanceAfter = finiteNumberOrNull(response?.credits?.balance_after);
+  const entitlementBalance = finiteNumberOrNull(entitlements.credit_balance);
+  if (balanceAfter !== null) {
     state.credits = Math.max(0, Math.floor(balanceAfter));
-  } else if (Number.isFinite(Number(entitlements.credit_balance))) {
-    state.credits = Math.max(0, Math.floor(Number(entitlements.credit_balance)));
+  } else if (entitlementBalance !== null) {
+    state.credits = Math.max(0, Math.floor(entitlementBalance));
   }
   if (state.auth?.user) {
     state.auth.user.credit_balance = state.credits;

@@ -1,42 +1,107 @@
 # HomeValue AI
 
-> Trợ lý định giá bán/thuê cho căn hộ và nhà thấp tầng Vinhomes Hà Nội, kết hợp dữ liệu listing công khai, snapshot bảng giá, comparable valuation và chatbot tiếng Việt.
+HomeValue AI is a FastAPI-based real-estate valuation and advisory assistant for Vinhomes projects in Hanoi. It combines cleaned public listing data, reference price snapshots, comparable valuation, plan-based credits, optional Maps/News enrichment, and a static web dashboard.
 
-## Live Demo
+The core principle is simple: backend services own the numbers and evidence; the chatbot only explains the allowed context in a natural advisory style.
 
-| Service | URL |
-|---------|-----|
-| Web demo | https://solanai.us |
-| API service | https://apivinhomes.solanai.us |
-| Health check | https://apivinhomes.solanai.us/health |
+## Screenshots
 
-## Vấn Đề
+### Valuation Dashboard
 
-Người mua, chủ nhà và môi giới thường phải tự tổng hợp giá rao từ nhiều nguồn, lọc tin nhiễu, rồi ước lượng khoảng giá hợp lý theo dự án, diện tích, số phòng ngủ, nội thất và mục đích bán/thuê. Quy trình này tốn thời gian, thiếu minh bạch về mẫu so sánh và dễ bị lệch bởi một vài tin rao bất thường.
+![HomeValue AI valuation dashboard](docs/screenshots/homevalue-dashboard.png)
 
-## Giải Pháp
+### Chat Advisor
 
-HomeValue AI cung cấp:
+![HomeValue AI chat advisor](docs/screenshots/homevalue-chatbot.png)
 
-- API định giá trả về P10/P50/P90, độ tin cậy, mẫu so sánh và yếu tố ảnh hưởng.
-- Chatbot tiếng Việt nhận câu hỏi tự nhiên như "Định giá bán căn hộ Vinhomes Smart City 54m2 2PN full nội thất".
-- Dashboard tĩnh để chat, nhập thông tin căn, xem trend thị trường, chart dữ liệu tổng hợp, comparable listings, Google Maps cho từng căn và tiện ích quanh căn thuê.
-- Pipeline crawl/parse dữ liệu từ Batdongsan, OneHousing, VinhomesLand và VinhomesOnline theo cấu hình trong `config/projects.yaml`.
-- Evaluation endpoint kiểm tra coverage 4 nguồn, duplicate chéo nguồn, quality flags và readiness theo từng dự án.
+### Assistant Workspace
+
+![HomeValue AI assistant workspace](docs/screenshots/homevalue-virtual-assistant.png)
+
+## What It Does
+
+- Estimates sale or rental ranges for supported Vinhomes Hanoi properties.
+- Handles natural-language chat in Vietnamese and English.
+- Extracts project, area, bedrooms, purpose, furniture, view, tower, subdivision, user side, budget, and asking price from chat.
+- Keeps follow-up context, so users can provide missing details in later messages.
+- Supports Basic credit and Agent Pro entitlement flows resolved on the server.
+- Lets Basic users run manual amenity lookup after confirmation and credit check.
+- Adds automatic Maps, News, and Outlook enrichment for Agent Pro when the request qualifies.
+- Provides market trend, price snapshot, evaluation, amenity, payment, auth, and Zalo chat endpoints.
+- Falls back to deterministic answers when the LLM is disabled, unavailable, or returns unusable output.
+
+## Product Plans
+
+| Capability | Basic Credit | Agent Pro |
+| --- | ---: | ---: |
+| Internal valuation | 1 credit per successful valuation | Included |
+| Natural chat advice | Yes | Yes |
+| Automatic Maps enrichment in valuation | No | Yes |
+| Manual amenity lookup | 2 credits per successful lookup | Included |
+| News Search and outlook | No | Yes |
+| Buyer/seller/landlord/tenant advice | Basic | Deeper advisory flow |
+| PDF export gate | Upgrade required | Allowed |
+
+Entitlements are resolved in the backend from authenticated user state. The frontend cannot self-grant Pro access or credit balance.
+
+## How Valuation Works
+
+The active `/valuation` and `/chat` paths use comparable valuation, not LLM prediction.
+
+1. Load cleaned market rows from SQLite or MongoDB.
+2. Deduplicate listing observations before valuation.
+3. Scope candidates by project, purpose, and property type.
+4. Score similarity by area, bedrooms, subdivision, view, furniture, and verified-transaction signal.
+5. Calculate weighted quantiles:
+   - `P10`: lower reference range
+   - `P50`: main market anchor
+   - `P90`: upper reference range
+6. For sale valuations, multiply price per square meter by area.
+7. Return confidence from candidate volume and market freshness.
+
+The repository also includes sklearn regression artifacts and `src/prediction.py` as an optional experimental baseline. That path is not wired into `/chat` or `/valuation` by default.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    UI[Static Dashboard] --> Proxy[Frontend Proxy]
+    Proxy --> API[FastAPI API]
+    API --> Chat[Chat Orchestrator]
+    API --> Valuation[Comparable Valuation]
+    API --> Auth[Auth, Credits, Payments]
+    Chat --> LLM[Optional LLM Rewrite]
+    Chat --> Maps[Maps Amenity Service]
+    Chat --> News[News Search Service]
+    Valuation --> Store[(SQLite or MongoDB)]
+    Maps --> Providers[SerpApi or Google Places]
+    News --> RSS[Google News RSS]
+```
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Backend | FastAPI, Python 3.11 |
-| Valuation | Comparable listings, weighted quantiles, optional sklearn baseline |
-| Chatbot | Rule-based intent/entity extraction, optional OpenAI answer rewriting |
-| Amenities | Agent tool `maps_amenity_search`, SerpApi Google Maps lookup, optional Google Places fallback |
-| Storage | SQLite local fallback, MongoDB production option |
-| Frontend | Static HTML/CSS/JavaScript dashboard |
-| DevOps | Docker, Docker Compose, GitHub Actions, AI logging hooks |
+| Layer | Implementation |
+| --- | --- |
+| Backend | FastAPI, Pydantic, Uvicorn |
+| Valuation | Comparable listings, weighted quantiles, pandas, numpy |
+| Storage | SQLite seed DB, optional MongoDB |
+| Chatbot | Rule-based intent/field extraction, optional OpenAI-compatible rewrite |
+| Maps | SerpApi Google Maps, optional Google Places fallback, URL-only fallback |
+| News | Google News RSS with optional geocoded proximity checks |
+| Frontend | Static HTML, CSS, JavaScript |
+| Payments | VietQR order flow, optional MBBank transaction check |
+| Tests | pytest |
 
 ## Quick Start
+
+Requirements:
+
+- Python 3.11 or newer
+- `pip`
+- SQLite
+- Optional: Docker and Docker Compose
+
+Set up the backend:
 
 ```bash
 cp .env.example .env
@@ -47,140 +112,193 @@ pytest -q
 python3 scripts/serve.py
 ```
 
-API chạy tại `http://127.0.0.1:8000`.
+With the provided `.env.example`, the API runs at:
 
-Chạy frontend local qua proxy:
+```text
+http://127.0.0.1:1108
+```
+
+Start the frontend proxy in a second terminal:
 
 ```bash
+source .venv/bin/activate
 python3 scripts/frontend_proxy.py
 ```
 
-Mở `http://127.0.0.1:2707`. Frontend gọi API qua same-origin `/api`, proxy sẽ forward nội bộ sang backend.
+Open:
 
-Chạy 2 service theo domain bằng Docker Compose:
+```text
+http://127.0.0.1:2707
+```
+
+The frontend proxy serves static files and forwards `/api/*` to the backend with the internal proxy header.
+
+## Docker
 
 ```bash
 docker compose up -d --build
 ```
 
-- Web `solanai.us`: `http://127.0.0.1:2707` (frontend proxy + static UI)
-- API `apivinhomes.solanai.us`: `http://127.0.0.1:1108/health`
+Docker exposes:
 
-Khi chạy production trên `solanai.us`, frontend dùng API base `/api`. Proxy frontend gắn internal header trước khi gọi backend, còn API public trực tiếp bị chặn ở các endpoint ứng dụng. Backend cần giữ `VALUATION_CORS_ORIGINS` có `https://solanai.us` và `https://www.solanai.us`.
+| Service | Local URL |
+| --- | --- |
+| Frontend | `http://127.0.0.1:2707` |
+| API | `http://127.0.0.1:1108/health` |
 
-Service production có file mẫu tại `deploy/solanai/homevalue-ai.service`; `WorkingDirectory` trỏ thẳng về `/home/anonymous/VINUNI/buildphase/C2-App-134` để API đọc đúng `.env`, `config/`, `data/` và `prompts/`.
+Inside Docker, the API container listens on port `8000`; Docker maps it to host port `1108`.
 
-## API Chính
+## Main API Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/health` | Health check |
-| GET | `/projects` | Danh sách dự án đang hỗ trợ |
-| POST | `/valuation` | Định giá căn bán/thuê |
-| POST | `/chat` | Chatbot định giá/trend/bảng giá |
-| GET | `/market-trends` | Median và sample size theo cửa sổ thời gian |
-| GET | `/price-snapshots` | Bảng giá tham khảo từ nguồn public |
-| GET | `/evaluation` | Đánh giá nguồn crawl, duplicate và độ sẵn sàng dữ liệu |
-| POST | `/amenities/advice` | Tạo truy vấn Google Maps/Places và tư vấn tiện ích quanh căn thuê |
-| POST | `/verified-transactions` | Nhập giao dịch xác thực thủ công |
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Health check |
+| `GET` | `/projects` | Supported project metadata |
+| `POST` | `/valuation` | Direct sale/rent valuation |
+| `POST` | `/chat` | Natural-language chatbot |
+| `GET` | `/market-trends` | Median market windows |
+| `GET` | `/price-snapshots` | Public reference price snapshots |
+| `GET` | `/evaluation` | Data quality and source coverage report |
+| `GET` | `/news` | Project-level news search |
+| `POST` | `/amenities/advice` | Amenity search/advice |
+| `POST` | `/auth/register` | Register app user |
+| `POST` | `/auth/login` | Login and receive bearer token |
+| `GET` | `/entitlements/me` | Server-resolved plan and feature flags |
+| `POST` | `/payments/pro-order` | Create Agent Pro or credit-pack VietQR order |
+| `POST` | `/export/pdf/check` | Server-side PDF entitlement gate |
+| `POST` | `/zalo/chat` | Zalo-formatted chat response |
 
-Ví dụ:
-
-```bash
-curl -X POST http://127.0.0.1:8000/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message":"Định giá bán căn hộ Vinhomes Smart City 54.2m2 2PN full nội thất"}'
-```
-
-Ví dụ gọi API deploy:
-
-```bash
-curl -X POST https://apivinhomes.solanai.us/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message":"Định giá bán căn hộ Vinhomes Smart City 54.2m2 2PN full nội thất"}'
-```
-
-Ví dụ tìm tiện ích quanh căn thuê:
+Example chat request:
 
 ```bash
-curl -X POST https://apivinhomes.solanai.us/amenities/advice \
+curl -X POST http://127.0.0.1:1108/chat \
   -H "Content-Type: application/json" \
-  -d '{"project":"vinhomes-smart-city","purpose":"rent","address":"S1.01 Vinhomes Smart City"}'
+  -d '{"message":"Định giá bán căn hộ Vinhomes Smart City 54m2 2PN full nội thất"}'
 ```
 
-## Project Structure
+Example direct valuation:
+
+```bash
+curl -X POST http://127.0.0.1:1108/valuation \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project": "vinhomes-smart-city",
+    "purpose": "sale",
+    "property_type": "apartment",
+    "area_m2": 54.2,
+    "bedrooms": 2,
+    "furniture": "full"
+  }'
+```
+
+## Environment Configuration
+
+Copy `.env.example` to `.env` and fill only the providers you need. Do not commit `.env`.
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `VALUATION_DB_PATH` | Yes | SQLite DB path, default `data/market.sqlite` |
+| `VALUATION_CONFIG_PATH` | Yes | Project/source config path |
+| `VALUATION_PORT` | Yes | Local API port, default `1108` in `.env.example` |
+| `FRONTEND_PROXY_API_BASE` | Yes | Backend URL used by the frontend proxy |
+| `AUTH_SECRET_KEY` | Recommended | If unset, a local `.runtime/auth_secret.key` is generated |
+| `ADMIN_API_KEY` | For admin writes | Required for protected verified transaction ingestion |
+| `OPENAI_API_KEY` | Optional | Enables LLM answer rewriting when `VALUATION_LLM_ENABLED=1` |
+| `OPENAI_BASE_URL` | Optional | Supports OpenAI-compatible providers |
+| `MODEL` | Optional | Model name for answer rewriting |
+| `SERPAPI_API_KEY` | Optional | Preferred Maps and geocoding provider |
+| `GOOGLE_MAPS_API_KEY` | Optional | Google Places fallback |
+| `MBBANK_ACCOUNT_NO` | Payments | Receiving account for VietQR orders |
+| `MBBANK_ACCOUNT_NAME` | Payments | Receiving account name |
+| `MBBANK_USERNAME` / `MBBANK_PASSWORD` | Optional | Only needed for automatic transaction checking |
+| `BASIC_VALUATION_CREDIT_COST` | Optional | Default `1` |
+| `BASIC_MANUAL_MAP_CREDIT_COST` | Optional | Default `2` |
+| `ENABLE_AUTO_MAP_ENRICHMENT` | Optional | Agent Pro Maps feature flag |
+| `ENABLE_NEWS_SEARCH` | Optional | Agent Pro News feature flag |
+| `ENABLE_PRO_OUTLOOK` | Optional | Agent Pro Outlook feature flag |
+| `ENABLE_PRO_PDF` | Optional | PDF entitlement feature flag |
+
+Provider failures should not break valuation. When Maps or News fails, the chatbot still returns the valuation and explains that the enrichment could not be checked.
+
+## Data And Models
+
+Tracked demo data:
+
+- `data/market.sqlite`: small seed DB for local demo and tests.
+- `data/processed/*.csv`: processed market exports and reference snapshots.
+- `models/*.joblib`: optional sklearn artifacts used for experiments and offline scripts.
+
+Ignored runtime data:
+
+- `.env`
+- `.env.*` except `.env.example`
+- `.runtime/`
+- logs and caches
+- raw crawler snapshots
+- SQLite WAL/SHM sidecar files
+- Zalo credentials, QR files, and `node_modules`
+
+Public seed data should not contain real app users, payment orders, credit ledger entries, private bank details, or provider secrets.
+
+## Security And Guardrails
+
+- Secrets are loaded from `.env`, never from frontend JavaScript.
+- API keys and payment credentials are not present in `.env.example`.
+- Auth uses bearer tokens signed with `AUTH_SECRET_KEY` or a generated local runtime key.
+- Credit deduction uses a ledger and idempotency key to avoid duplicate charges on retries.
+- Basic users cannot trigger automatic Maps or News enrichment through frontend-supplied plan fields.
+- PDF export is checked server-side through `/export/pdf/check`.
+- The LLM prompt instructs the assistant not to expose prompts, raw context, API payloads, internal comparable records, or fake broker identities.
+- News/outlook wording is constrained to sourced context and avoids guaranteed future appreciation claims.
+
+## Repository Layout
 
 ```text
-├── src/                    # FastAPI app, chatbot, crawler, parser, valuation logic
-├── frontend/               # Static dashboard copied from BuildPhase UI
-├── config/projects.yaml    # Project/source/crawl/quality configuration
-├── prompts/                # Chatbot system/user/fallback/intent prompts
-├── data/                   # Seed SQLite DB and processed CSVs for demo/test
-├── models/                 # Optional sklearn quantile baseline artefacts
-├── scripts/                # Crawl, serve, scheduler, train, migration, AI logging hooks
-├── tests/                  # pytest suite
-├── docs/product/           # PRD, brief, survey and UI docs from product folder
-├── docs/technical/         # Backend architecture notes
-├── G3/                     # Evaluation evidence (G3.2, G3.3, G3.5)
-└── presentation/           # Demo materials placeholder
+src/                    FastAPI app, chatbot, auth, payments, valuation, enrichment
+frontend/               Static dashboard and virtual assistant UI
+prompts/                Basic/Pro system prompts, user prompt, fallback templates, intent rules
+config/                 Project and data-source configuration
+data/                   Seed SQLite DB and processed CSV exports
+models/                 Optional regression and quantile model artifacts
+scripts/                Serve, crawl, train, evaluate, migrate, and logging utilities
+tests/                  pytest suite
+zalo/                   Zalo bot integration
+docs/                   Product, technical, guide, and screenshot assets
+G3/                     Evaluation, guardrail, and cost reports
+deploy/                 Example production service files
 ```
 
-## Data And Operations
+## Quality Checks
 
-Seed data is included in `data/market.sqlite` and `data/processed/*.csv` so the API works immediately. Large raw crawler snapshots are ignored by git; regenerate them when needed:
+Run the main test suite:
 
 ```bash
-python3 scripts/crawl.py --limit 8
-python3 scripts/scheduler.py --once
-python3 scripts/train.py --purpose sale
+pytest -q
 ```
 
-Storage mode is controlled by `VALUATION_STORAGE_BACKEND`:
+Current local result while updating this README:
 
-- `auto`: use MongoDB when `MONGODB_URI` exists, otherwise SQLite.
-- `sqlite`: force local `data/market.sqlite`.
-- `mongo`: require `MONGODB_URI`.
+```text
+65 passed, 2 FastAPI deprecation warnings
+```
 
-Amenity advice hoạt động theo ba chế độ:
+Useful additional checks:
 
-- Có `SERPAPI_API_KEY`: backend gọi SerpApi Google Maps, đọc cả `place_results` và `local_results`, rồi trả tên tiện ích, địa chỉ, rating và khoảng cách ước tính.
-- Có `GOOGLE_MAPS_API_KEY`: backend gọi Google Places Text Search để lấy tên địa điểm, địa chỉ, rating mẫu.
-- Không có key hợp lệ: backend tạo sẵn Google Maps search/embed URL cho từng nhóm tiện ích như giao thông, siêu thị, trường học, y tế, ăn uống mua sắm và công viên.
+```bash
+python3 scripts/evaluate_valuation.py
+python3 scripts/evaluate_intent_accuracy.py
+python3 scripts/evaluate_latency.py
+python3 scripts/evaluate_data_quality.py
+python3 scripts/evaluate_cost.py
+```
 
-Agent Pro tự động gắn tiện ích vào định giá khi có vị trí đủ tối thiểu; kết quả Maps được cache theo `MAPS_ENRICHMENT_CACHE_TTL_SECONDS` để các lượt follow-up cùng dự án/tòa/phân khu không gọi lại provider liên tục.
+## Known Limits
 
-News Search cho Agent Pro lấy Google News RSS theo dự án/quận và các chủ đề hạ tầng, quy hoạch, tiện ích. Nếu có `SERPAPI_API_KEY` hoặc `GOOGLE_MAPS_API_KEY`, backend geocode vị trí định giá và địa danh trong tin để chỉ gắn nhãn "gần vị trí" khi khoảng cách được xác minh trong `NEWS_NEARBY_RADIUS_KM`. Kết quả được cache theo `NEWS_CACHE_TTL_SECONDS`; lỗi provider hoặc tin chưa xác minh không làm hỏng kết quả định giá.
-
-Valuation không dùng trực tiếp mọi dòng crawl thô. Backend tạo canonical key theo dự án, loại hình, mục đích, diện tích, số phòng ngủ, mức giá và dấu hiệu vị trí để gộp duplicate chéo nguồn trước khi tính P10/P50/P90. Trong seed DB hiện tại `/evaluation` ghi nhận 854 listing rows thô, 827 listing rows unique và 27 duplicate rows đã được gộp.
-
-Các mốc giá trong UI:
-
-- `P10`: vùng giá thấp trong nhóm so sánh, khoảng 10% mẫu rẻ hơn mức này.
-- `P50`: trung vị thị trường, dùng làm giá neo chính.
-- `P90`: vùng giá cao trong nhóm so sánh, khoảng 10% mẫu đắt hơn mức này.
-
-## Deliverables Checklist
-
-| # | Deliverable | Status | Location |
-|---|-------------|--------|----------|
-| 1 | Source Code | ✅ Done | [`src/`](src/) |
-| 2 | README.md | ✅ Done | [`README.md`](README.md) |
-| 3 | Architecture Diagram | ✅ Done | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
-| 4 | AI Logs | ✅ Done | [`.ai-log/`](.ai-log/) |
-| 5 | Live URL | ✅ Done | https://solanai.us |
-| 6 | Video Demo | ✅ Done | [Google Drive](https://drive.google.com/file/d/16whLZxUet4OdyMEbuzO2eBvgZa9tAXtf/view?usp=drive_link) |
-| 7 | Pitch Deck | ✅ Done | [Google Drive](https://drive.google.com/file/d/1gFVPDGpt0QEFGJWS1eySx8K3J6FE5JGs/view?usp=sharing) |
-| 8 | Development Journal | ✅ Done | [`JOURNAL.md`](JOURNAL.md) |
-| 9 | Worklog | ✅ Done | [`WORKLOG.md`](WORKLOG.md) |
-| 10 | Evaluation Evidence | ✅ Done | [`G3/G3.2 - results/report.md`](G3/G3.2%20-%20results/report.md) |
-
-**Bonus:**
-- [x] Dockerfile and Docker Compose
-- [x] GitHub Actions CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml))
-- [x] Guardrail Report ([`G3/G3.3 - Guardrails/`](G3/G3.3%20-%20Guardrails/))
-- [x] Cost Report ([`G3/G3.5 - Cost Report/`](G3/G3.5%20-%20Cost%20Report/))
-- [x] Product docs ([`docs/product/`](docs/product/))
-- [x] Tests in [`tests/`](tests/) (8 test files)
+- The default valuation relies on public listing data and verified rows in the local dataset; it is a market reference, not a guaranteed closed transaction price.
+- Maps enrichment depends on SerpApi or Google Places for concrete POIs. Without provider keys, the app falls back to Google Maps search links.
+- News enrichment uses Google News RSS and optional geocoding. Unverified or weak-source news is treated as context, not a primary pricing driver.
+- Browser PDF export is gated by backend entitlement, but final file generation is handled by the frontend print/export flow.
+- Production payment automation requires real bank account configuration and MBBank credentials in `.env`.
 
 ## License
 
